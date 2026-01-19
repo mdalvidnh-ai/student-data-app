@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1E3A8A">
+    <title>Student Data Master</title>
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlN0dWRlbnQgRGF0YSBFbnRyeSIsCiAgInNob3J0X25hbWUiOiAiU3R1ZGVudERhdGEiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgInRoZW1lX2NvbG9yIjogIiMxRTNBNEEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuZmxhdGljb24uY29tLzUxMi8yOTkxLzI5OTE5NjQucG5nIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1E3A8A; --secondary: #10B981; --bg: #DBEAFE;
+            --error: #EF4444; --warning: #F59E0B; --white: #FFFFFF;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg); margin: 0; padding: 10px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        header {
+            width: 100%; max-width: 500px;
+            background: linear-gradient(135deg, var(--primary), #3B82F6);
+            color: white; padding: 20px; border-radius: 12px;
+            text-align: center; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            background: var(--white); width: 100%; max-width: 500px;
+            border-radius: 15px; padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid #BFDBFE; margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: var(--primary); font-weight: 800; font-size: 1rem;
+            border-bottom: 2px solid #E5E7EB; margin: 20px 0 12px 0;
+            padding-bottom: 5px; display: flex; align-items: center; gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .field-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; color: #4B5563; }
+        
+        input, select, textarea {
+            width: 100%; min-height: 48px; padding: 12px;
+            border: 1.5px solid #D1D5DB; border-radius: 10px;
+            font-size: 1rem; background: #F9FAFB;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--primary); background: #fff;
+        }
+
+        .btn-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
+        button {
+            width: 100%; min-height: 52px; border: none; border-radius: 10px;
+            color: white; font-weight: bold; cursor: pointer; font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        
+        .btn-add { background: var(--secondary); }
+        .btn-search { background: var(--primary); }
+        .btn-edit { background: var(--warning); }
+        .btn-clear { background: var(--error); }
+        .btn-template { background: #6B7280; }
+        .btn-import { background: #6366F1; }
+        .btn-excel { background: #065F46; }
+
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            padding: 15px 25px; border-radius: 30px; color: white;
+            display: none; z-index: 10000; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .table-view { width: 100%; max-width: 500px; overflow-x: auto; background: white; border-radius: 10px; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <i class="fas fa-university fa-2x"></i>
+        <h2 style="margin:5px 0;">Student Data Entry</h2>
+    </header>
+
+    <div class="card">
+        <form id="studentForm">
+            <div class="section-title">Basic Information</div>
+            <div class="field-group">
+                <label>CLASS *</label>
+                <select id="CLASS" required><option value="">Select</option><option>IX</option><option>X</option><option>XI</option><option>XII</option></select>
+            </div>
+            <div class="field-group">
+                <label>DIVISION *</label>
+                <select id="DIVISION" required>
+                    <option value="">Select</option>
+                    <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option>
+                </select>
+            </div>
+            <div class="field-group"><label>ROLL NO. *</label><input type="text" id="ROLL_NO" pattern="[0-9]*" inputmode="numeric" required></div>
+            <div class="field-group"><label>GR NO. *</label><input type="text" id="GR_NO" pattern="[0-9]*" inputmode="numeric" required></div>
+            <div class="field-group"><label>STUDENT NAME AS / L.C. *</label><input type="text" id="STUDENT_NAME" class="up" required></div>
+            <div class="field-group">
+                <label>GENDER *</label>
+                <select id="GENDER" required><option value="">Select</option><option>Male</option><option>Female</option></select>
+            </div>
+            <div class="field-group"><label>DATE OF BIRTH AS L.C. *</label><input type="date" id="DOB_LC" required></div>
+            <div class="field-group"><label>PLACE OF BIRTH *</label><input type="text" id="POB" class="up" required></div>
+            <div class="field-group"><label>CAST *</label><input type="text" id="CASTE" class="up" required></div>
+
+            <div class="section-title">Contact & Family</div>
+            <div class="field-group"><label>MOBILE 1 * (10 Digits)</label><input type="tel" id="MOBILE_1" maxlength="10" required></div>
+            <div class="field-group"><label>MOBILE 2 (Optional)</label><input type="tel" id="MOBILE_2" maxlength="10"></div>
+            <div class="field-group"><label>EMAIL ID</label><input type="email" id="EMAIL_ID"></div>
+            <div class="field-group"><label>FATHER FULL NAME *</label><input type="text" id="FATHER_NAME" class="up" required></div>
+            <div class="field-group"><label>MOTHER NAME *</label><input type="text" id="MOTHER_NAME" class="up" required></div>
+            <div class="field-group"><label>ADDRESS *</label><textarea id="ADDRESS" rows="3" class="up" required></textarea></div>
+
+            <div class="section-title">Identity & Admission</div>
+            <div class="field-group"><label>AADHAR NO. * (12 Digits)</label><input type="text" id="AADHAR_NO" maxlength="12" required></div>
+            <div class="field-group"><label>NAME AS / AADHAR *</label><input type="text" id="NAME_AADHAR" class="up" required></div>
+            <div class="field-group"><label>DOB AS / AADHAR *</label><input type="date" id="DOB_AADHAR" required></div>
+            <div class="field-group"><label>DATE OF ADMISSION *</label><input type="date" id="DOA" required></div>
+            <div class="field-group"><label>PREVIOUS SCHOOL NAME *</label><input type="text" id="PREV_SCHOOL" class="up" required></div>
+
+            <div class="section-title">Academic & Bank</div>
+            <div class="field-group"><label>BANK NAME</label><input type="text" id="BANK_NAME" class="up"></div>
+            <div class="field-group"><label>BANK ACC. NO.</label><input type="text" id="BANK_ACC"></div>
+            <div class="field-group"><label>IFSC CODE</label><input type="text" id="IFSC" class="up"></div>
+            <div class="field-group"><label>PEN NO.</label><input type="text" id="PEN"></div>
+            <div class="field-group"><label>APAAR ID</label><input type="text" id="APAAR"></div>
+            <div class="field-group"><label>PERCENTAGE (Last Class)</label><input type="number" id="PERCENTAGE" step="0.01"></div>
+
+            <div class="section-title">Medical & Other</div>
+            <div class="field-group">
+                <label>BLOOD GROUP *</label>
+                <select id="BLOOD_GROUP" required>
+                    <option value="">Select</option>
+                    <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>Not checked yet</option>
+                </select>
+            </div>
+            <div class="field-group"><label>HEIGHT (CMS)</label><input type="number" id="HEIGHT" step="0.1"></div>
+            <div class="field-group"><label>WEIGHT (KGS)</label><input type="number" id="WEIGHT" step="0.1"></div>
+            <div class="field-group">
+                <label>HOSTEL STUDENT *</label>
+                <select id="HOSTEL" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+            </div>
+            <div class="field-group">
+                <label>ORPHAN *</label>
+                <select id="ORPHAN" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+            </div>
+            <div class="field-group">
+                <label>APL / BPL *</label>
+                <select id="APL_BPL" required><option value="">Select</option><option>APL</option><option>BPL</option></select>
+            </div>
+            <div class="field-group"><label>DISTANCE FROM SCHOOL (KM)</label><input type="number" id="DISTANCE" step="0.1"></div>
+            <div class="field-group"><label>REMARK</label><textarea id="REMARK" rows="2"></textarea></div>
+
+            <div class="btn-stack">
+                <button type="button" class="btn-add" onclick="handleAdd()"><i class="fas fa-plus"></i> Save Record</button>
+                <button type="button" class="btn-edit" onclick="handleEdit()"><i class="fas fa-edit"></i> Edit Last Entry</button>
+                <hr>
+                <button type="button" class="btn-template" onclick="downloadTemplate()"><i class="fas fa-download"></i> Download Excel Template</button>
+                <button type="button" class="btn-import" onclick="document.getElementById('importInput').click()"><i class="fas fa-file-upload"></i> Import Filled Excel</button>
+                <input type="file" id="importInput" style="display:none;" accept=".xlsx, .xls" onchange="importFromExcel(event)">
+                <button type="button" class="btn-excel" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export All to Excel</button>
+                <button type="button" class="btn-clear" onclick="clearData()"><i class="fas fa-trash"></i> Reset Database</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-view">
+        <table id="dataTable">
+            <thead><tr><th>NAME</th><th>CLASS</th><th>ROLL</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        const ALL_FIELDS = ["CLASS", "DIVISION", "ROLL_NO", "STUDENT_NAME", "GR_NO", "MOBILE_1", "MOBILE_2", "GENDER", "DOB_LC", "DOA", "POB", "CASTE", "PREV_SCHOOL", "FATHER_NAME", "MOTHER_NAME", "AADHAR_NO", "NAME_AADHAR", "DOB_AADHAR", "ADDRESS", "BANK_ACC", "BANK_NAME", "IFSC", "PERCENTAGE", "HEIGHT", "WEIGHT", "BLOOD_GROUP", "HOSTEL", "ORPHAN", "PEN", "APAAR", "REMARK", "DISTANCE", "APL_BPL", "EMAIL_ID"];
+
+        let studentData = JSON.parse(localStorage.getItem('eduDB_v2')) || [];
+
+        // Auto-Uppercase
+        document.querySelectorAll('.up').forEach(input => {
+            input.addEventListener('input', function() { this.value = this.value.toUpperCase(); });
+        });
+
+        function showToast(msg, color = '#10B981') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.style.backgroundColor = color;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function handleAdd() {
+            const form = document.getElementById('studentForm');
+            if(!form.checkValidity()) { form.reportValidity(); return; }
+
+            const m1 = document.getElementById('MOBILE_1').value;
+            const aadhar = document.getElementById('AADHAR_NO').value;
+            if(m1.length !== 10) return showToast("Mobile must be 10 digits", "#EF4444");
+            if(aadhar.length !== 12) return showToast("Aadhar must be 12 digits", "#EF4444");
+
+            let record = {};
+            ALL_FIELDS.forEach(f => record[f] = document.getElementById(f).value);
+            
+            studentData.push(record);
+            saveData();
+            form.reset();
+            showToast("Record Saved!");
+        }
+
+        function saveData() {
+            localStorage.setItem('eduDB_v2', JSON.stringify(studentData));
+            updateTable();
+        }
+
+        function updateTable() {
+            const body = document.getElementById('tableBody');
+            body.innerHTML = studentData.slice(-5).map(r => `
+                <tr><td>${r.STUDENT_NAME}</td><td>${r.CLASS}</td><td>${r.ROLL_NO}</td></tr>
+            `).join('');
+        }
+
+        // --- FIXED EXCEL LOGIC ---
+
+        function downloadTemplate() {
+            if (typeof XLSX === 'undefined') return alert("Library still loading...");
+            const ws = XLSX.utils.aoa_to_sheet([ALL_FIELDS]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Template");
+            XLSX.writeFile(wb, "Student_Template.xlsx");
+            showToast("Template Downloaded");
+        }
+
+        function exportToExcel() {
+            if(studentData.length === 0) return showToast("No data to export", "#EF4444");
+            const ws = XLSX.utils.json_to_sheet(studentData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Students");
+            XLSX.writeFile(wb, "Full_Student_Data.xlsx");
+            showToast("Excel Exported!");
+        }
+
+        function importFromExcel(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const wb = XLSX.read(data, {type: 'array'});
+                const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                studentData = [...studentData, ...json];
+                saveData();
+                showToast(`Imported ${json.length} records`);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function handleEdit() {
+            if(studentData.length === 0) return;
+            const last = studentData.pop();
+            ALL_FIELDS.forEach(f => { if(document.getElementById(f)) document.getElementById(f).value = last[f] || ""; });
+            saveData();
+            showToast("Last record loaded for editing");
+        }
+
+        function clearData() {
+            if(confirm("Clear all data?")) { studentData = []; saveData(); showToast("Database Cleared", "#EF4444"); }
+        }
+
+        updateTable();
+    </script>
+</body>
+</html>
