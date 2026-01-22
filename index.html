@@ -4,284 +4,265 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1E3A8A">
-    <title>Student Data Master</title>
+    <title>Student Management Pro</title>
     
-   <link rel="manifest" href="manifest.json">
-
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <style>
-        :root {
-            --primary: #1E3A8A; --secondary: #10B981; --bg: #DBEAFE;
-            --error: #EF4444; --warning: #F59E0B; --white: #FFFFFF;
-        }
-
+        :root { --primary: #1E3A8A; --secondary: #10B981; --bg: #DBEAFE; --error: #EF4444; --warning: #F59E0B; --white: #FFFFFF; }
+        
+        /* General Styles */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg); margin: 0; padding: 10px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        header {
-            width: 100%; max-width: 500px;
-            background: linear-gradient(135deg, var(--primary), #3B82F6);
-            color: white; padding: 20px; border-radius: 12px;
-            text-align: center; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .card {
-            background: var(--white); width: 100%; max-width: 500px;
-            border-radius: 15px; padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 1px solid #BFDBFE; margin-bottom: 20px;
-        }
-
-        .section-title {
-            color: var(--primary); font-weight: 800; font-size: 1rem;
-            border-bottom: 2px solid #E5E7EB; margin: 20px 0 12px 0;
-            padding-bottom: 5px; display: flex; align-items: center; gap: 8px;
-            text-transform: uppercase;
-        }
-
-        .field-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; color: #4B5563; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 10px; }
+        header { width: 100%; max-width: 600px; background: var(--primary); color: white; padding: 20px; border-radius: 12px; text-align: center; margin: 0 auto 15px auto; }
+        .card { background: var(--white); width: 100%; max-width: 600px; border-radius: 15px; padding: 20px; border: 1px solid #BFDBFE; margin: 0 auto 20px auto; }
         
-        input, select, textarea {
-            width: 100%; min-height: 48px; padding: 12px;
-            border: 1.5px solid #D1D5DB; border-radius: 10px;
-            font-size: 1rem; background: #F9FAFB;
-        }
+        /* Form Layout */
+        .section-title { color: var(--primary); font-weight: 800; border-bottom: 2px solid #E5E7EB; margin: 20px 0 10px 0; padding-bottom: 5px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .field-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; color: #4B5563; }
+        input, select, textarea { width: 100%; min-height: 45px; padding: 10px; border: 1.5px solid #D1D5DB; border-radius: 8px; font-size: 1rem; background: #F9FAFB; }
+        .up { text-transform: uppercase; }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none; border-color: var(--primary); background: #fff;
-        }
-
-        .btn-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
-        button {
-            width: 100%; min-height: 52px; border: none; border-radius: 10px;
-            color: white; font-weight: bold; cursor: pointer; font-size: 0.95rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        
+        /* Buttons */
+        .btn-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        button { width: 100%; min-height: 50px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: var(--secondary); }
         .btn-search { background: var(--primary); }
-        .btn-edit { background: var(--warning); }
-        .btn-clear { background: var(--error); }
+        .btn-update { background: var(--warning); display: none; } /* Shown only during edit */
         .btn-template { background: #6B7280; }
         .btn-import { background: #6366F1; }
         .btn-excel { background: #065F46; }
+        .btn-clear { background: var(--error); }
 
-        #toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            padding: 15px 25px; border-radius: 30px; color: white;
-            display: none; z-index: 10000; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        /* Search Results Styles */
+        .search-item { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+        .search-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-sm-edit { background: var(--warning); padding: 5px 15px; font-size: 0.8rem; height: 35px; }
+        .btn-sm-print { background: var(--primary); padding: 5px 15px; font-size: 0.8rem; height: 35px; }
+
+        /* Modal */
+        #searchModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; padding: 15px; }
+        .modal-content { background: white; border-radius: 15px; padding: 20px; max-height: 90vh; overflow-y: auto; width: 100%; max-width: 500px; margin: auto; }
+
+        /* PRINT STYLES - A4 Proper Arrangement */
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 210mm; padding: 20mm; background: white; color: black; }
+            .print-header { text-align: center; border-bottom: 2px solid black; margin-bottom: 20px; padding-bottom: 10px; }
+            .print-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+            .print-item { border-bottom: 1px solid #eee; padding: 5px 0; }
+            .print-label { font-weight: bold; font-size: 10pt; color: #555; }
+            .print-value { font-size: 11pt; border-bottom: 1px dotted #ccc; }
+            .no-print { display: none !important; }
         }
 
-        .table-view { width: 100%; max-width: 500px; overflow-x: auto; background: white; border-radius: 10px; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: var(--primary); color: white; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 30px; color: white; display: none; z-index: 10000; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <header>
-        <i class="fas fa-university fa-2x"></i>
-        <h2 style="margin:5px 0;">Student Data Entry</h2>
-    </header>
+    <div id="mainUI">
+        <header>
+            <i class="fas fa-user-circle fa-2x"></i>
+            <h2 style="margin:5px 0;">Student Portal</h2>
+        </header>
 
-    <div class="card">
-        <form id="studentForm">
-            <div class="section-title">Basic Information</div>
-            <div class="field-group">
-                <label>CLASS *</label>
-                <select id="CLASS" required><option value="">Select</option><option>IX</option><option>X</option><option>XI</option><option>XII</option></select>
-            </div>
-            <div class="field-group">
-                <label>DIVISION *</label>
-                <select id="DIVISION" required>
-                    <option value="">Select</option>
-                    <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option>
-                </select>
-            </div>
-            <div class="field-group"><label>ROLL NO. *</label><input type="text" id="ROLL_NO" pattern="[0-9]*" inputmode="numeric" required></div>
-            <div class="field-group"><label>GR NO. *</label><input type="text" id="GR_NO" pattern="[0-9]*" inputmode="numeric" required></div>
-            <div class="field-group"><label>STUDENT NAME AS / L.C. *</label><input type="text" id="STUDENT_NAME" class="up" required></div>
-            <div class="field-group">
-                <label>GENDER *</label>
-                <select id="GENDER" required><option value="">Select</option><option>Male</option><option>Female</option></select>
-            </div>
-            <div class="field-group"><label>DATE OF BIRTH AS L.C. *</label><input type="date" id="DOB_LC" required></div>
-            <div class="field-group"><label>PLACE OF BIRTH *</label><input type="text" id="POB" class="up" required></div>
-            <div class="field-group"><label>CAST *</label><input type="text" id="CASTE" class="up" required></div>
+        <div class="card">
+            <form id="studentForm">
+                <input type="hidden" id="editID"> <div class="section-title">Step 1: Academic</div>
+                <div class="field-group"><label>CLASS *</label><select id="CLASS" required><option value="">Select</option><option>IX</option><option>X</option><option>XI</option><option>XII</option></select></div>
+                <div class="field-group"><label>DIVISION *</label><select id="DIVISION" required><option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+                <div class="field-group"><label>ROLL NO. *</label><input type="number" id="ROLL_NO" required></div>
+                <div class="field-group"><label>GR NO. *</label><input type="number" id="GR_NO" required></div>
+                <div class="field-group"><label>STUDENT NAME (L.C.) *</label><input type="text" id="STUDENT_NAME" class="up" required></div>
 
-            <div class="section-title">Contact & Family</div>
-            <div class="field-group"><label>MOBILE 1 * (10 Digits)</label><input type="tel" id="MOBILE_1" maxlength="10" required></div>
-            <div class="field-group"><label>MOBILE 2 (Optional)</label><input type="tel" id="MOBILE_2" maxlength="10"></div>
-            <div class="field-group"><label>EMAIL ID</label><input type="email" id="EMAIL_ID"></div>
-            <div class="field-group"><label>FATHER FULL NAME *</label><input type="text" id="FATHER_NAME" class="up" required></div>
-            <div class="field-group"><label>MOTHER NAME *</label><input type="text" id="MOTHER_NAME" class="up" required></div>
-            <div class="field-group"><label>ADDRESS *</label><textarea id="ADDRESS" rows="3" class="up" required></textarea></div>
+                <div class="section-title">Step 2: Personal</div>
+                <div class="field-group"><label>GENDER *</label><select id="GENDER" required><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+                <div class="field-group"><label>DATE OF BIRTH (L.C.) *</label><input type="date" id="DOB_LC" required></div>
+                <div class="field-group"><label>PLACE OF BIRTH *</label><input type="text" id="POB" class="up" required></div>
+                <div class="field-group"><label>CASTE *</label><input type="text" id="CASTE" class="up" required></div>
+                <div class="field-group"><label>AADHAR NO. *</label><input type="text" id="AADHAR_NO" maxlength="12" required></div>
+                <div class="field-group"><label>NAME ON AADHAR *</label><input type="text" id="NAME_AADHAR" class="up" required></div>
+                <div class="field-group"><label>DOB ON AADHAR *</label><input type="date" id="DOB_AADHAR" required></div>
 
-            <div class="section-title">Identity & Admission</div>
-            <div class="field-group"><label>AADHAR NO. * (12 Digits)</label><input type="text" id="AADHAR_NO" maxlength="12" required></div>
-            <div class="field-group"><label>NAME AS / AADHAR *</label><input type="text" id="NAME_AADHAR" class="up" required></div>
-            <div class="field-group"><label>DOB AS / AADHAR *</label><input type="date" id="DOB_AADHAR" required></div>
-            <div class="field-group"><label>DATE OF ADMISSION *</label><input type="date" id="DOA" required></div>
-            <div class="field-group"><label>PREVIOUS SCHOOL NAME *</label><input type="text" id="PREV_SCHOOL" class="up" required></div>
+                <div class="section-title">Step 3: Contact & Family</div>
+                <div class="field-group"><label>MOBILE 1 *</label><input type="tel" id="MOBILE_1" maxlength="10" required></div>
+                <div class="field-group"><label>MOBILE 2</label><input type="tel" id="MOBILE_2" maxlength="10"></div>
+                <div class="field-group"><label>FATHER FULL NAME *</label><input type="text" id="FATHER_NAME" class="up" required></div>
+                <div class="field-group"><label>MOTHER NAME *</label><input type="text" id="MOTHER_NAME" class="up" required></div>
+                <div class="field-group"><label>ADDRESS *</label><textarea id="ADDRESS" rows="3" class="up" required></textarea></div>
+                <div class="field-group"><label>EMAIL ID</label><input type="email" id="EMAIL_ID"></div>
 
-            <div class="section-title">Academic & Bank</div>
-            <div class="field-group"><label>BANK NAME</label><input type="text" id="BANK_NAME" class="up"></div>
-            <div class="field-group"><label>BANK ACC. NO.</label><input type="text" id="BANK_ACC"></div>
-            <div class="field-group"><label>IFSC CODE</label><input type="text" id="IFSC" class="up"></div>
-            <div class="field-group"><label>PEN NO.</label><input type="text" id="PEN"></div>
-            <div class="field-group"><label>APAAR ID</label><input type="text" id="APAAR"></div>
-            <div class="field-group"><label>PERCENTAGE (Last Class)</label><input type="number" id="PERCENTAGE" step="0.01"></div>
+                <div class="section-title">Step 4: School & Bank</div>
+                <div class="field-group"><label>DATE OF ADMISSION *</label><input type="date" id="DOA" required></div>
+                <div class="field-group"><label>PREVIOUS SCHOOL *</label><input type="text" id="PREV_SCHOOL" class="up" required></div>
+                <div class="field-group"><label>BANK NAME</label><input type="text" id="BANK_NAME" class="up"></div>
+                <div class="field-group"><label>ACC NO.</label><input type="text" id="BANK_ACC"></div>
+                <div class="field-group"><label>IFSC CODE</label><input type="text" id="IFSC" class="up"></div>
+                <div class="field-group"><label>PEN NO.</label><input type="text" id="PEN"></div>
+                <div class="field-group"><label>APAAR ID</label><input type="text" id="APAAR"></div>
+                
+                <div class="section-title">Step 5: Health & Misc</div>
+                <div class="field-group"><label>BLOOD GROUP *</label><select id="BLOOD_GROUP" required><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>Not Checked</option></select></div>
+                <div class="field-group"><label>HEIGHT (CMS)</label><input type="number" id="HEIGHT"></div>
+                <div class="field-group"><label>WEIGHT (KGS)</label><input type="number" id="WEIGHT"></div>
+                <div class="field-group"><label>PERCENTAGE %</label><input type="number" id="PERCENTAGE" step="0.01"></div>
+                <div class="field-group"><label>DISTANCE (KM)</label><input type="number" id="DISTANCE" step="0.1"></div>
+                <div class="field-group"><label>HOSTEL *</label><select id="HOSTEL" required><option>No</option><option>Yes</option></select></div>
+                <div class="field-group"><label>ORPHAN *</label><select id="ORPHAN" required><option>No</option><option>Yes</option></select></div>
+                <div class="field-group"><label>APL/BPL *</label><select id="APL_BPL" required><option>APL</option><option>BPL</option></select></div>
+                <div class="field-group"><label>REMARK</label><textarea id="REMARK" rows="2" class="up"></textarea></div>
 
-            <div class="section-title">Medical & Other</div>
-            <div class="field-group">
-                <label>BLOOD GROUP *</label>
-                <select id="BLOOD_GROUP" required>
-                    <option value="">Select</option>
-                    <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>Not checked yet</option>
-                </select>
-            </div>
-            <div class="field-group"><label>HEIGHT (CMS)</label><input type="number" id="HEIGHT" step="0.1"></div>
-            <div class="field-group"><label>WEIGHT (KGS)</label><input type="number" id="WEIGHT" step="0.1"></div>
-            <div class="field-group">
-                <label>HOSTEL STUDENT *</label>
-                <select id="HOSTEL" required><option value="">Select</option><option>Yes</option><option>No</option></select>
-            </div>
-            <div class="field-group">
-                <label>ORPHAN *</label>
-                <select id="ORPHAN" required><option value="">Select</option><option>Yes</option><option>No</option></select>
-            </div>
-            <div class="field-group">
-                <label>APL / BPL *</label>
-                <select id="APL_BPL" required><option value="">Select</option><option>APL</option><option>BPL</option></select>
-            </div>
-            <div class="field-group"><label>DISTANCE FROM SCHOOL (KM)</label><input type="number" id="DISTANCE" step="0.1"></div>
-            <div class="field-group"><label>REMARK</label><textarea id="REMARK" rows="2"></textarea></div>
-
-            <div class="btn-stack">
-                <button type="button" class="btn-add" onclick="handleAdd()"><i class="fas fa-plus"></i> Save Record</button>
-                <button type="button" class="btn-edit" onclick="handleEdit()"><i class="fas fa-edit"></i> Edit Last Entry</button>
-                <hr>
-                <button type="button" class="btn-template" onclick="downloadTemplate()"><i class="fas fa-download"></i> Download Excel Template</button>
-                <button type="button" class="btn-import" onclick="document.getElementById('importInput').click()"><i class="fas fa-file-upload"></i> Import Filled Excel</button>
-                <input type="file" id="importInput" style="display:none;" accept=".xlsx, .xls" onchange="importFromExcel(event)">
-                <button type="button" class="btn-excel" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export All to Excel</button>
-                <button type="button" class="btn-clear" onclick="clearData()"><i class="fas fa-trash"></i> Reset Database</button>
-            </div>
-        </form>
+                <div class="btn-stack">
+                    <button type="button" id="saveBtn" class="btn-add" onclick="handleSave()"><i class="fas fa-user-plus"></i> Save New Student</button>
+                    <button type="button" id="updateBtn" class="btn-update" onclick="handleUpdate()"><i class="fas fa-sync-alt"></i> Update Records</button>
+                    <button type="button" class="btn-search" onclick="openSearch()"><i class="fas fa-search"></i> Search / Edit / Print</button>
+                    <hr>
+                    <button type="button" class="btn-template" onclick="downloadTemplate()"><i class="fas fa-file-download"></i> Get Excel Template</button>
+                    <button type="button" class="btn-import" onclick="document.getElementById('importInput').click()"><i class="fas fa-file-upload"></i> Import Filled Excel</button>
+                    <input type="file" id="importInput" style="display:none;" accept=".xlsx, .xls" onchange="importFromExcel(event)">
+                    <button type="button" class="btn-excel" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export All Data</button>
+                    <button type="button" class="btn-clear" onclick="clearData()"><i class="fas fa-trash"></i> Reset System</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <div class="table-view">
-        <table id="dataTable">
-            <thead><tr><th>NAME</th><th>CLASS</th><th>ROLL</th></tr></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+    <div id="printArea"></div>
+
+    <div id="searchModal">
+        <div class="modal-content">
+            <h2 style="color:var(--primary)">Search Records</h2>
+            <input type="text" id="searchInput" placeholder="Enter Name, Roll or GR..." onkeyup="performSearch()" style="margin-bottom:20px">
+            <div id="searchResults"></div>
+            <button onclick="closeSearch()" style="background:#6B7280; margin-top:15px; width:100%">Close</button>
+        </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
-        const ALL_FIELDS = ["CLASS", "DIVISION", "ROLL_NO", "STUDENT_NAME", "GR_NO", "MOBILE_1", "MOBILE_2", "GENDER", "DOB_LC", "DOA", "POB", "CASTE", "PREV_SCHOOL", "FATHER_NAME", "MOTHER_NAME", "AADHAR_NO", "NAME_AADHAR", "DOB_AADHAR", "ADDRESS", "BANK_ACC", "BANK_NAME", "IFSC", "PERCENTAGE", "HEIGHT", "WEIGHT", "BLOOD_GROUP", "HOSTEL", "ORPHAN", "PEN", "APAAR", "REMARK", "DISTANCE", "APL_BPL", "EMAIL_ID"];
+        const FIELDS = ["CLASS", "DIVISION", "ROLL_NO", "STUDENT_NAME", "GR_NO", "MOBILE_1", "MOBILE_2", "GENDER", "DOB_LC", "DOA", "POB", "CASTE", "PREV_SCHOOL", "FATHER_NAME", "MOTHER_NAME", "AADHAR_NO", "NAME_AADHAR", "DOB_AADHAR", "ADDRESS", "BANK_ACC", "BANK_NAME", "IFSC", "PERCENTAGE", "HEIGHT", "WEIGHT", "BLOOD_GROUP", "HOSTEL", "ORPHAN", "PEN", "APAAR", "REMARK", "DISTANCE", "APL_BPL", "EMAIL_ID"];
 
-        let studentData = JSON.parse(localStorage.getItem('eduDB_v2')) || [];
+        let db = JSON.parse(localStorage.getItem('eduDB_v4')) || [];
 
-        // Auto-Uppercase
-        document.querySelectorAll('.up').forEach(input => {
-            input.addEventListener('input', function() { this.value = this.value.toUpperCase(); });
-        });
+        // UI Helpers
+        function showToast(m, c = '#10B981') { const t = document.getElementById('toast'); t.textContent = m; t.style.backgroundColor = c; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
+        document.querySelectorAll('.up').forEach(el => el.addEventListener('input', () => el.value = el.value.toUpperCase()));
 
-        function showToast(msg, color = '#10B981') {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.style.backgroundColor = color;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
+        // Save Logic
+        function handleSave() {
+            if(!document.getElementById('studentForm').checkValidity()) { document.getElementById('studentForm').reportValidity(); return; }
+            const record = { id: Date.now() };
+            FIELDS.forEach(f => record[f] = document.getElementById(f).value);
+            db.push(record);
+            localStorage.setItem('eduDB_v4', JSON.stringify(db));
+            document.getElementById('studentForm').reset();
+            showToast("New Student Added!");
         }
 
-        function handleAdd() {
-            const form = document.getElementById('studentForm');
-            if(!form.checkValidity()) { form.reportValidity(); return; }
-
-            const m1 = document.getElementById('MOBILE_1').value;
-            const aadhar = document.getElementById('AADHAR_NO').value;
-            if(m1.length !== 10) return showToast("Mobile must be 10 digits", "#EF4444");
-            if(aadhar.length !== 12) return showToast("Aadhar must be 12 digits", "#EF4444");
-
-            let record = {};
-            ALL_FIELDS.forEach(f => record[f] = document.getElementById(f).value);
+        // Search & Modal Logic
+        function openSearch() { document.getElementById('searchModal').style.display = 'flex'; performSearch(); }
+        function closeSearch() { document.getElementById('searchModal').style.display = 'none'; }
+        
+        function performSearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const results = db.filter(r => r.STUDENT_NAME.toLowerCase().includes(q) || r.ROLL_NO.toString().includes(q) || r.GR_NO.toString().includes(q));
             
-            studentData.push(record);
-            saveData();
-            form.reset();
-            showToast("Record Saved!");
+            document.getElementById('searchResults').innerHTML = results.map(r => `
+                <div class="search-item">
+                    <strong>${r.STUDENT_NAME}</strong><br>
+                    <small>Roll: ${r.ROLL_NO} | GR: ${r.GR_NO} | Class: ${r.CLASS}</small>
+                    <div class="search-actions">
+                        <button class="btn-sm-edit" onclick="startEdit(${r.id})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn-sm-print" onclick="printStudent(${r.id})"><i class="fas fa-print"></i> A4 Print</button>
+                    </div>
+                </div>
+            `).join('') || "No records found.";
         }
 
-        function saveData() {
-            localStorage.setItem('eduDB_v2', JSON.stringify(studentData));
-            updateTable();
+        // Edit Logic
+        function startEdit(id) {
+            const student = db.find(s => s.id === id);
+            FIELDS.forEach(f => document.getElementById(f).value = student[f] || "");
+            document.getElementById('editID').value = id;
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('updateBtn').style.display = 'flex';
+            closeSearch();
+            window.scrollTo(0,0);
+            showToast("Data loaded for editing", "#F59E0B");
         }
 
-        function updateTable() {
-            const body = document.getElementById('tableBody');
-            body.innerHTML = studentData.slice(-5).map(r => `
-                <tr><td>${r.STUDENT_NAME}</td><td>${r.CLASS}</td><td>${r.ROLL_NO}</td></tr>
-            `).join('');
+        function handleUpdate() {
+            const id = parseInt(document.getElementById('editID').value);
+            const index = db.findIndex(s => s.id === id);
+            FIELDS.forEach(f => db[index][f] = document.getElementById(f).value);
+            localStorage.setItem('eduDB_v4', JSON.stringify(db));
+            
+            document.getElementById('studentForm').reset();
+            document.getElementById('saveBtn').style.display = 'flex';
+            document.getElementById('updateBtn').style.display = 'none';
+            showToast("Records Updated Successfully!");
         }
 
-        // --- FIXED EXCEL LOGIC ---
+        // Print Logic (A4 Arrangement)
+        function printStudent(id) {
+            const s = db.find(x => x.id === id);
+            let html = `
+                <div class="print-header">
+                    <h2>STUDENT INFORMATION RECORD</h2>
+                    <p>Academic Year 2025-26</p>
+                </div>
+                <div class="print-grid">
+                    ${FIELDS.map(f => `
+                        <div class="print-item">
+                            <div class="print-label">${f.replace(/_/g, ' ')}</div>
+                            <div class="print-value">${s[f] || '-'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="margin-top:50px; display:flex; justify-content: space-between;">
+                    <div>Class Teacher Sign</div>
+                    <div>Principal Stamp</div>
+                </div>
+            `;
+            document.getElementById('printArea').innerHTML = html;
+            window.print();
+        }
 
+        // Excel Logic
         function downloadTemplate() {
-            if (typeof XLSX === 'undefined') return alert("Library still loading...");
-            const ws = XLSX.utils.aoa_to_sheet([ALL_FIELDS]);
+            const ws = XLSX.utils.aoa_to_sheet([FIELDS]);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Template");
-            XLSX.writeFile(wb, "Student_Template.xlsx");
-            showToast("Template Downloaded");
+            XLSX.writeFile(wb, "Student_Entry_Template.xlsx");
         }
 
         function exportToExcel() {
-            if(studentData.length === 0) return showToast("No data to export", "#EF4444");
-            const ws = XLSX.utils.json_to_sheet(studentData);
+            const ws = XLSX.utils.json_to_sheet(db);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Students");
-            XLSX.writeFile(wb, "Full_Student_Data.xlsx");
-            showToast("Excel Exported!");
+            XLSX.utils.book_append_sheet(wb, ws, "Full_Data");
+            XLSX.writeFile(wb, "Student_Master_Export.xlsx");
         }
 
-        function importFromExcel(event) {
-            const file = event.target.files[0];
+        function importFromExcel(e) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
+            reader.onload = (evt) => {
+                const data = new Uint8Array(evt.target.result);
                 const wb = XLSX.read(data, {type: 'array'});
                 const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                studentData = [...studentData, ...json];
-                saveData();
-                showToast(`Imported ${json.length} records`);
+                db = [...db, ...json.map(item => ({...item, id: Date.now() + Math.random()}))];
+                localStorage.setItem('eduDB_v4', JSON.stringify(db));
+                showToast(`Imported ${json.length} students!`);
             };
-            reader.readAsArrayBuffer(file);
+            reader.readAsArrayBuffer(e.target.files[0]);
         }
 
-        function handleEdit() {
-            if(studentData.length === 0) return;
-            const last = studentData.pop();
-            ALL_FIELDS.forEach(f => { if(document.getElementById(f)) document.getElementById(f).value = last[f] || ""; });
-            saveData();
-            showToast("Last record loaded for editing");
-        }
-
-        function clearData() {
-            if(confirm("Clear all data?")) { studentData = []; saveData(); showToast("Database Cleared", "#EF4444"); }
-        }
-
-        updateTable();
+        function clearData() { if(confirm("Erase everything?")) { db = []; localStorage.removeItem('eduDB_v4'); showToast("System Reset", "#EF4444"); } }
     </script>
 </body>
-
 </html>
