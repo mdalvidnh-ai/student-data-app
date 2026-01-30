@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1E3A8A">
-    <title>Student Data Master v4.2</title>
+    <title>Student Data Master v4.3</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -40,18 +40,20 @@
         .search-actions { display: flex; gap: 8px; margin-top: 10px; }
         .btn-sm { flex: 1; min-height: 35px; font-size: 0.8rem; border-radius: 5px; }
 
-        /* A4 Print Layout */
+        /* REFINED A4 PRINT LAYOUT */
         #printArea { display: none; }
         @media print {
+            @page { size: A4; margin: 10mm; }
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; display: block; }
-            #printArea { position: absolute; left: 0; top: 0; width: 210mm; color: black; padding: 15mm; background: white; }
-            .print-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-            .photo-box { width: 35mm; height: 45mm; border: 1px solid #000; display: flex; align-items: center; text-align: center; font-size: 8pt; background: #f9f9f9; padding: 5px; }
-            .print-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-            .print-cell { border-bottom: 1px solid #eee; padding: 6px 0; font-size: 10pt; line-height: 1.4; }
-            .print-label { font-weight: bold; color: #444; font-size: 8pt; text-transform: uppercase; }
-            .footer-sign { margin-top: 50px; display: flex; justify-content: space-between; font-weight: bold; }
+            #printArea { position: absolute; left: 0; top: 0; width: 190mm; color: black; background: white; padding: 5mm; border: 1px solid #000; }
+            .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+            .photo-box { width: 30mm; height: 35mm; border: 1px solid #000; display: flex; align-items: center; text-align: center; font-size: 7pt; font-weight: bold; }
+            .print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+            .print-cell { border: 0.5px solid #eee; padding: 4px; font-size: 9pt; height: 35px; overflow: hidden; }
+            .print-label { font-weight: bold; color: #000; font-size: 7pt; text-transform: uppercase; display: block; margin-bottom: 2px; }
+            .print-value { font-size: 9pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .footer-sign { margin-top: 40px; display: flex; justify-content: space-between; font-weight: bold; font-size: 10pt; }
         }
 
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 25px; color: white; display: none; z-index: 10001; }
@@ -62,7 +64,7 @@
     <div id="main-content">
         <header>
             <i class="fas fa-university fa-2x"></i>
-            <h2 style="margin:5px 0;">Student Portal v4.2</h2>
+            <h2 style="margin:5px 0;">Student Portal v4.3</h2>
         </header>
 
         <div class="card">
@@ -140,7 +142,7 @@
     <div id="toast"></div>
 
     <script>
-        const FIELDS = ["CLASS", "DIVISION", "ROLL_NO", "STUDENT_NAME", "GR_NO", "MOBILE_1", "MOBILE_2", "GENDER", "DOB_LC", "DOA", "POB", "CASTE", "PREV_SCHOOL", "FATHER_NAME", "MOTHER_NAME", "AADHAR_NO", "NAME_AADHAR", "DOB_AADHAR", "ADDRESS", "BANK_ACC", "BANK_NAME", "IFSC", "PERCENTAGE", "HEIGHT", "WEIGHT", "BLOOD_GROUP", "HOSTEL", "ORPHAN", "PEN", "APAAR", "REMARK", "DISTANCE", "APL_BPL", "EMAIL_ID"];
+        const FIELDS = ["CLASS", "DIVISION", "ROLL_NO", "STUDENT_NAME", "GR_NO", "DOA", "PREV_SCHOOL", "GENDER", "DOB_LC", "POB", "CASTE", "AADHAR_NO", "NAME_AADHAR", "DOB_AADHAR", "FATHER_NAME", "MOTHER_NAME", "MOBILE_1", "MOBILE_2", "EMAIL_ID", "ADDRESS", "BANK_ACC", "BANK_NAME", "IFSC", "PEN", "APAAR", "BLOOD_GROUP", "HEIGHT", "WEIGHT", "PERCENTAGE", "DISTANCE", "HOSTEL", "ORPHAN", "APL_BPL", "REMARK"];
 
         let db = JSON.parse(localStorage.getItem('eduDB_v4_final')) || [];
 
@@ -154,7 +156,7 @@
             db.push(record);
             saveData();
             document.getElementById('studentForm').reset();
-            showToast("Saved Successfully!");
+            showToast("Saved!");
         }
 
         function saveData() { localStorage.setItem('eduDB_v4_final', JSON.stringify(db)); }
@@ -177,18 +179,13 @@
         }
 
         function handleDelete(id) {
-            if(confirm("Delete this student record?")) { db = db.filter(s => s.id !== id); saveData(); performSearch(); showToast("Deleted", "#EF4444"); }
+            if(confirm("Delete this student?")) { db = db.filter(s => s.id !== id); saveData(); performSearch(); showToast("Deleted", "#EF4444"); }
         }
 
         function wipeDatabase() {
             const code = Math.floor(1000 + Math.random() * 9000);
-            if(confirm(`WARNING: This will delete ALL ${db.length} student records permanently.\n\nType the code ${code} to confirm:`)) {
-                const response = prompt(`Enter ${code} to wipe everything:`);
-                if(response == code) {
-                    db = [];
-                    saveData();
-                    showToast("Database Cleared", "#EF4444");
-                }
+            if(confirm(`WIPE ALL DATA?\nType ${code} to confirm:`)) {
+                if(prompt(`Enter ${code}:`) == code) { db = []; saveData(); showToast("Wiped", "#EF4444"); }
             }
         }
 
@@ -210,7 +207,7 @@
             document.getElementById('studentForm').reset();
             document.getElementById('saveBtn').style.display = 'flex';
             document.getElementById('updateBtn').style.display = 'none';
-            showToast("Record Updated!");
+            showToast("Updated!");
         }
 
         function printRecord(id) {
@@ -218,22 +215,22 @@
             let html = `
                 <div class="print-header">
                     <div>
-                        <h1 style="margin:0; font-size:18pt;">STUDENT CUMULATIVE RECORD</h1>
-                        <p style="margin:5px 0;">Academic Session 2025 - 2026</p>
+                        <h1 style="margin:0; font-size:16pt;">STUDENT ADMISSION RECORD</h1>
+                        <p style="margin:2px 0; font-size:9pt;">Session: 2025-2026</p>
                     </div>
-                    <div class="photo-box">Passport Size Photograph</div>
+                    <div class="photo-box">Passport<br>Photo</div>
                 </div>
                 <div class="print-grid">
                     ${FIELDS.map(f => `
                         <div class="print-cell">
-                            <div class="print-label">${f.replace(/_/g, ' ')}</div>
-                            <div class="print-value">${s[f] || '-'}</div>
+                            <span class="print-label">${f.replace(/_/g, ' ')}</span>
+                            <span class="print-value">${s[f] || '-'}</span>
                         </div>
                     `).join('')}
                 </div>
                 <div class="footer-sign">
-                    <span>Class Teacher Signature</span>
-                    <span>Principal Signature & Seal</span>
+                    <span>(Class Teacher Sign)</span>
+                    <span>(Headmaster's Sign)</span>
                 </div>
             `;
             document.getElementById('printArea').innerHTML = html;
