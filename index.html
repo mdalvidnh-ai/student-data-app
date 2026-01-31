@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1E3A8A">
-    <title>Student Data Master v4.7</title>
+    <title>Student Data Master v4.9</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -40,25 +40,30 @@
         .search-item { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid var(--primary); }
         .version-tag { text-align: center; font-size: 0.7rem; color: #64748b; margin: 20px 0; }
 
-        /* PRINT SETTINGS - COMPACT 3-COLUMN */
+        /* PRINT SETTINGS - FORMAL BORDER */
         #printArea { display: none; }
         @media print {
-            @page { size: A4 portrait; margin: 5mm; }
+            @page { size: A4 portrait; margin: 0; }
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; display: block; }
-            #printArea { position: absolute; top: 0; left: 0; width: 200mm; height: 285mm; background: white; padding: 5mm; }
+            #printArea { 
+                position: absolute; top: 5mm; left: 5mm; 
+                width: 200mm; height: 287mm; 
+                background: white; 
+                border: 3px double #000; /* Formal Border */
+                padding: 10mm; 
+            }
             .print-header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; align-items: flex-end; }
             .print-photo { width: 35mm; height: 45mm; border: 1px solid #000; object-fit: cover; }
             .print-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 0 !important; border-top: 0.5px solid #000; border-left: 0.5px solid #000; }
             .print-cell { border-right: 0.5px solid #000; border-bottom: 0.5px solid #000; padding: 3px; min-height: 32px; overflow: hidden; }
-            .print-label { font-weight: bold; font-size: 6pt; text-transform: uppercase; display: block; line-height: 1; }
-            .print-value { font-size: 8pt; display: block; word-break: break-all; }
+            .print-label { font-weight: bold; font-size: 6pt; text-transform: uppercase; display: block; line-height: 1; color: #333; }
+            .print-value { font-size: 8.5pt; display: block; font-weight: 500; }
             
             .footer-sign { 
-                position: absolute; bottom: 5mm; left: 5mm; width: 190mm; 
-                display: flex; justify-content: space-between; font-weight: bold; font-size: 10pt; 
+                position: absolute; bottom: 15mm; right: 15mm; width: 60mm; 
+                text-align: center; font-weight: bold; font-size: 11pt; border-top: 1.5px solid #000; padding-top: 5px;
             }
-            .sig-box { width: 45%; border-top: 1px solid #000; padding-top: 5px; }
         }
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 25px; color: white; display: none; z-index: 10001; }
     </style>
@@ -66,11 +71,11 @@
 <body>
 
     <div id="main-content">
-        <header><h2>Student Portal v4.7</h2></header>
+        <header><h2>Student Portal v4.9</h2></header>
         
         <div class="card">
             <div class="photo-container">
-                <div id="photo-preview"><span>3.5 x 4.5 cm Photo<br>(Gallery/Camera)</span></div>
+                <div id="photo-preview"><span>3.5 x 4.5 cm Photo<br>Required</span></div>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-photo" onclick="document.getElementById('fileInput').click()">Gallery</button>
                     <button class="btn-photo" onclick="startCamera()">Camera</button>
@@ -136,7 +141,7 @@
                 </div>
                 <div class="field-group" id="vocBox" style="display:none;">
                     <label>NAME OF VOCATIONAL SUBJECT</label>
-                    <input type="text" id="VOC_NAME" class="up">
+                    <input type="text" id="VOC_NAME" class="up" placeholder="Enter Subject Name">
                 </div>
 
                 <div class="btn-stack">
@@ -148,7 +153,7 @@
                 </div>
             </form>
         </div>
-        <p class="version-tag">Version 4.7 | All 34 Fields + Photo + Vocational</p>
+        <p class="version-tag">Version 4.9 | Formal Border | 34 Fields + Vocational</p>
     </div>
 
     <div id="printArea"></div>
@@ -165,9 +170,7 @@
     <div id="toast"></div>
 
     <script>
-        // FULL 34 FIELD LIST + NEW VOCATIONAL
         const FIELDS = ["CLASS", "DIVISION", "ROLL_NO", "GR_NO", "STUDENT_NAME", "DOA", "PREV_SCHOOL", "GENDER", "DOB_LC", "POB", "CASTE", "AADHAR_NO", "NAME_AADHAR", "DOB_AADHAR", "FATHER_NAME", "MOTHER_NAME", "MOBILE_1", "MOBILE_2", "EMAIL_ID", "ADDRESS", "BANK_ACC", "BANK_NAME", "IFSC", "PEN", "APAAR", "BLOOD_GROUP", "HEIGHT", "WEIGHT", "PERCENTAGE", "DISTANCE", "HOSTEL", "ORPHAN", "APL_BPL", "REMARK", "VOC_STATUS", "VOC_NAME"];
-
         let db = JSON.parse(localStorage.getItem('eduDB_v4_final')) || [];
 
         function toggleVoc(val) { document.getElementById('vocBox').style.display = (val === 'Yes') ? 'block' : 'none'; }
@@ -273,8 +276,8 @@
             let html = `
                 <div class="print-header">
                     <div>
-                        <h1 style="margin:0; font-size:16pt;">STUDENT ADMISSION RECORD</h1>
-                        <p style="margin:2px 0;">Academic Year 2025-2026</p>
+                        <h1 style="margin:0; font-size:18pt; letter-spacing:1px;">STUDENT ADMISSION RECORD</h1>
+                        <p style="margin:4px 0; font-weight:bold;">Academic Year 2025-2026</p>
                     </div>
                     ${photoHtml}
                 </div>
@@ -286,10 +289,7 @@
                         </div>
                     `).join('')}
                 </div>
-                <div class="footer-sign">
-                    <div class="sig-box">Class Teacher Signature</div>
-                    <div class="sig-box" style="text-align:right;">Headmaster's Signature</div>
-                </div>
+                <div class="footer-sign">Headmaster's Signature</div>
             `;
             document.getElementById('printArea').innerHTML = html;
             window.print();
@@ -298,8 +298,8 @@
         function exportToExcel() {
             const ws = XLSX.utils.json_to_sheet(db);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Data");
-            XLSX.writeFile(wb, "Student_Database.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Students");
+            XLSX.writeFile(wb, "Student_Database_v4.9.xlsx");
         }
     </script>
 </body>
